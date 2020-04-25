@@ -49,11 +49,14 @@ def main_2():
 	#to import the data from csv file to the database
   f=open('books.csv')
   reader=csv.reader(f)
+  count=0
   for isbn, title, author, year in reader:
   	archive = BookArchive(isbn=isbn, title=title, author=author, year=year)
   	db.session.add(archive)
-  print("success")
-  db.session.commit()
+  	count+=1
+  	print(count)
+  	db.session.commit()
+
 
 
 

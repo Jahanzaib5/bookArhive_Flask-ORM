@@ -21,10 +21,10 @@ class BookReview(db.Model):
 class BookArchive(db.Model):
 	__tablename__="bookarchive"
 	id = db.Column(db.Integer, primary_key=True)
-	isbn = db.Column(db.String,unique=True, nullable=False)
+	isbn = db.Column(db.String, unique=True, nullable=False)
 	title = db.Column(db.String, nullable=False)
 	author = db.Column(db.String, nullable=False)
-	year = db.Column(db.Integer, nullable=False)
+	year = db.Column(db.Text, nullable=False)
 #	review_isbn = db.relationship('BookArchive', backref='bookreview', lazy=True)
 
 #class BookReview(db.Model):
