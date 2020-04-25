@@ -1,4 +1,5 @@
 import os
+import csv
 
 from flask import Flask, session, render_template, request
 from flask_session import Session
@@ -9,7 +10,7 @@ from models import *
 
 app = Flask(__name__)
 
-# Tell Flask what SQLAlchemy databas to use.
+# Tell Flask what SQLAlchemy database to use.
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://vfooqegoqbccjs:e04d0b9e1addba9715696c93cbfbe566bd3f56fd36fa2b72bf7a9e6272ea876b@ec2-3-223-21-106.compute-1.amazonaws.com:5432/d92pfdtb7oefek"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -41,10 +42,23 @@ def signup():
 db.init_app(app)
 
 def main():
-  # Create tables based on each table definition in `models`
+# Create tables based on each table definition in `models`
   db.create_all()
+
+def main_2():
+	#to import the data from csv file to the database
+  f=open('books.csv')
+  reader=csv.reader(f)
+  for isbn, title, author, year in reader:
+  	archive = BookArchive(isbn=isbn, title=title, author=author, year=year)
+  	db.session.add(archive)
+  print("success")
+  db.session.commit()
+
+
 
 if __name__ == "__main__":
   # Allows for command line interaction with Flask application
   with app.app_context():
-    main()
+    #main()
+    main_2()
