@@ -1,7 +1,7 @@
 import os
 import csv
 
-from flask import Flask, session, render_template, request
+from flask import Flask, session, render_template, request, flash
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -29,17 +29,63 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 #db = scoped_session(sessionmaker(bind=engine))
 
 
+# Link the Flask app with the database (no Flask app is actually being run yet).
+db.init_app(app)
+
 @app.route("/")
 def index():
     return render_template("index.html")
-#the signup page
-@app.route("/signup")
+
+
+#signup page
+@app.route('/signup')
 def signup():
-	return render_template("signup.html")
+	return render_template('signup.html')
+
+#to add user to the database
+@app.route("/add_user", methods=["POST"])
+def add_user():
+	#get information from the form
+	username = request.form.get('username')
+	email = request.form.get('email')
+	password = request.form.get('password')
+
+	#check if they are not null
+	if(username=='' or email=='' or password==''):
+		return render_template('error.html', message="Please fill all the details")
 
 
-# Link the Flask app with the database (no Flask app is actually being run yet).
-db.init_app(app)
+	#check if username is already taken
+	check = Users.query.filter_by(username=username).count()
+	if(check > 0):
+		flash("this user name is already taken")
+		return render_template('error.html', message="The user name is already taken, kindly choose another")
+
+	#try:
+	#	name = str(request.form.get('name'))
+	#	email = str(request.form.get('email'))
+	#except:
+	#	return render_template('error.html', message="please fill in the form to signup!")
+	
+	#adding user to the database
+	user = Users(username=username, email=email, password=password)
+	db.session.add(user)
+	db.session.commit()
+	return render_template("success.html", message="you have been registred, successfully!")
+		
+
+#to login the user
+@app.route('/sign_in', methods=['POST'])
+def sign_in():
+	username = request.form.get('username')
+	password = request.form.get('password')
+	
+
+
+
+
+
+
 
 def main():
 # Create tables based on each table definition in `models`
@@ -63,5 +109,5 @@ def main_2():
 if __name__ == "__main__":
   # Allows for command line interaction with Flask application
   with app.app_context():
-    #main()
-    main_2()
+    main()
+    #main_2()
