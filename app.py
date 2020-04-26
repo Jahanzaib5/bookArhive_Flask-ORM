@@ -1,14 +1,19 @@
 import os
 import csv
 
-from flask import Flask, session, render_template, request, flash
+from flask import Flask, session, render_template, request, flash, redirect, url_for, g
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from flask_login import login_required, logout_user, current_user, login_user #LoginManager
+
 
 from models import *
 
 app = Flask(__name__)
+app.secret_key = "MynameiskhanandIamnotaterrorist "
+
+#login_manager = LoginManager()
 
 # Tell Flask what SQLAlchemy database to use.
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://vfooqegoqbccjs:e04d0b9e1addba9715696c93cbfbe566bd3f56fd36fa2b72bf7a9e6272ea876b@ec2-3-223-21-106.compute-1.amazonaws.com:5432/d92pfdtb7oefek"
@@ -32,6 +37,9 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 # Link the Flask app with the database (no Flask app is actually being run yet).
 db.init_app(app)
 
+
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -52,7 +60,7 @@ def add_user():
 
 	#check if they are not null
 	if(username=='' or email=='' or password==''):
-		return render_template('error.html', message="Please fill all the details")
+		return render_template('error.html', message="Please fill in all the details")
 
 
 	#check if username is already taken
@@ -61,28 +69,73 @@ def add_user():
 		flash("this user name is already taken")
 		return render_template('error.html', message="The user name is already taken, kindly choose another")
 
-	#try:
-	#	name = str(request.form.get('name'))
-	#	email = str(request.form.get('email'))
-	#except:
-	#	return render_template('error.html', message="please fill in the form to signup!")
-	
-	#adding user to the database
-	user = Users(username=username, email=email, password=password)
-	db.session.add(user)
-	db.session.commit()
-	return render_template("success.html", message="you have been registred, successfully!")
-		
+
+	#check if the email is already taken
+	check_email = Users.query.filter_by(email=email).first()
+	if check_email is None:
+		#adding user to the database
+		user = Users(username=username, email=email, password=password)
+		user.set_password(password)#to create hash password
+		db.session.add(user)
+		db.session.commit()
+		#login_user(user) #login as newly create user
+		return render_template("success.html", message="you have been registred, successfully!")
+	else:
+		return render_template('error.html', message="This email is already registered!")
+			
+
 
 #to login the user
-@app.route('/sign_in', methods=['POST'])
+@app.route('/sign_in', methods=['GET','POST'])
 def sign_in():
-	username = request.form.get('username')
-	password = request.form.get('password')
-	
+	#if current_user.is_authenticated:
+	#	return render_template('dashboard.html', message='You are already logged in!')
+
+	#creating empty list to store the user for the session
+	#if session.get('username') == None:
+	#	session['username']=[]
+
+	#checkin the credentials and logging the user in
+	if request.method == "POST":
+
+		session.pop('user_id', None)
+
+		username = request.form.get('username')
+		password = request.form.get('password')
+
+		#session['username'].append(username)
+
+		if (username=='' or password=='') == False:
+			user = Users.query.filter_by(username=username).first() #cehck if user exist in the database
+			passw = user.check_password(password) #method we build to check the password and return bool
+			if (user and passw):
+				session['user'] = user
+				#next_page = request.args.get('next')
+				return redirect(url_for('dashboard'))
+			return render_template('error.html', message="Invalid login details")
+		return render_template('error.html', message="Invalid login details")
+	else:
+		if 'user' in session:
+			return render_template("dashboard.html")
+		return render_template('error.html', message="Please fill in the details")
+	return render_template('error.html', message="Please fill in the details")
+
+
+@app.route('/dashboard')
+def dashboard():
+	if 'user' in session:
+		user = session['user']
+		return render_template("dashboard.html", message=user)
+	else:
+		return render_template('error.html', message="Login failed")
 
 
 
+@app.route('/logout')
+def logout():
+	session.clear()
+	session.pop('user ', None)
+	return redirect(url_for('index'))
 
 
 
@@ -109,5 +162,5 @@ def main_2():
 if __name__ == "__main__":
   # Allows for command line interaction with Flask application
   with app.app_context():
-    main()
-    #main_2()
+    #main()
+    main_2()

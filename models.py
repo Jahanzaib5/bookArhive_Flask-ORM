@@ -18,8 +18,12 @@ class Users(UserMixin, db.Model):
 
 
   def check_password(self, password):
-  	'''unhash the hashed password---returns bool value'''
+  	'''unhash the hashed password and checks it---returns bool value'''
   	return check_password_hash(self.password, password)
+
+  def get_user_id(self):
+    return self.id
+
 
   def __repr__(self):
   	return '<User {}>'.format(self.username)

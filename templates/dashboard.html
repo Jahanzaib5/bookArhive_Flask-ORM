@@ -1,0 +1,11 @@
+{%extends "layout.html"%}
+
+{%block header%}
+	<h1 style="margin-top: 5%; margin-bottom: 5%; text-align: center;">{{message}}</h1>
+{%endblock%}
+
+{%block body%}
+	<h4><a style="text-align: center;" class="nav-link" href="{{url_for('logout')}}">Logout</a></h4>
+	{{message}}
+
+{%endblock%}
