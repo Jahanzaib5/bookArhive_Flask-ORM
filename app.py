@@ -3,7 +3,7 @@ import csv
 
 from flask import Flask, session, render_template, request, flash, redirect, url_for, g
 from flask_session import Session
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import scoped_session, sessionmaker
 from flask_login import login_required, logout_user, current_user, login_user ,LoginManager, UserMixin
 
@@ -120,7 +120,7 @@ def sign_in():
 				if (passw):
 					login_user(user)
 					session['user'] = user
-					return render_template('dashboard.html', message=user.__repr__())
+					return redirect(url_for('dashboard'))
 					#return redirect(url_for('dashboard'))
 		return render_template('error.html', message="Invalid login details")
 	else:
@@ -129,7 +129,7 @@ def sign_in():
 		return render_template('error.html', message="Please fill in the details")
 	return render_template('error.html', message="Please fill in the details")
 
-
+#login required for the dashboad to search fo the books
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -140,6 +140,25 @@ def dashboard():
 		return render_template('error.html', message="Login failed")
 
 
+#This function will handle the book search request form the user
+@app.route('/book_search', methods=['POST'])
+@login_required
+def book_search():
+	book_isbn=request.form.get('book_isbn')
+	book_author=request.form.get('book_author')
+	book_title=request.form.get('book_title')
+
+	#search through the database and return it in a list
+	results = BookArchive.query.filter(or_(BookArchive.isbn==book_isbn, BookArchive.title==book_title, BookArchive.author==book_author)).all()
+	if results == None:
+		return render_template('book_search.html')
+	return render_template('book_search.html', results=results)
+
+
+#creating api for the books
+@login_required
+@app.route('/api/books/<int:book.id>')
+def
 
 @app.route('/logout')
 @login_required

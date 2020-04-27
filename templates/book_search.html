@@ -1,0 +1,43 @@
+{%extends "layout_2.html"%}
+
+{%block logout%}
+	<a style="text-align: center;" class="nav-link" href="{{url_for('logout')}}">Logout</a>
+{%endblock%}
+
+{%block user%}
+	<!--<h4>{{message}}</h4>-->
+{%endblock%}
+
+{%block header%}
+	<h2 style="text-align: center; margin-bottom: 4%">The Query Resutls are as Follow:</h2>
+{%endblock%}
+
+{%block body%}
+
+
+	<style type="text/css">
+		table, th, td {
+  				border: 1px solid black;
+  				border-collapse: collapse;
+		}
+	</style>
+	<table style="width:100%">
+	  <tr>
+	    <th>Book ISBN</th>
+	    <th>Book Title</th>
+	    <th>Book Author</th>
+	    <th>Click to have more details</th>
+	  </tr>
+	  {% for i in results %}
+		  <tr>
+		    <td>{{i.isbn}}</td>
+		    <td>{{i.title}}</td>
+		    <td>{{i.author}}</td>
+		    <td><a href="{{url_for('book_api'), book_id=i.id}}">Details</a></td>
+		  </tr>
+	  {% endfor %}
+	</table>
+	
+
+{%endblock%}
+

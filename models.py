@@ -31,19 +31,19 @@ class Users(UserMixin, db.Model):
 
 
 
-#class BookReview(db.Model):
-#	__tablename__="bookreview"
-#	id=db.Column(db.Integer, primary_key=True)
-#	rating = db.Column(db.Integer, nullable=True)
-#	review_isbn = db.Column(db.String, db.ForeignKey("bookarchive.isbn"), nullable=False)
+class BookReview(db.Model):
+	__tablename__="bookreview"
+	id=db.Column(db.Integer, primary_key=True)
+	rating = db.Column(db.Integer, nullable=True)
+	review_isbn = db.Column(db.String, db.ForeignKey("bookarchive.isbn"), nullable=False)
 
 
 
-#class BookArchive(db.Model):
-#	__tablename__="bookarchive"
-#	id = db.Column(db.Integer, primary_key=True)
-#	isbn = db.Column(db.String, unique=True, nullable=False)
-#	title = db.Column(db.String, nullable=False)
-#	author = db.Column(db.String, nullable=False)
-#	year = db.Column(db.Text, nullable=False)
+class BookArchive(db.Model):
+	__tablename__="bookarchive"
+	id = db.Column(db.Integer, primary_key=True)
+	isbn = db.Column(db.String, unique=True, nullable=False)
+	title = db.Column(db.String, nullable=False)
+	author = db.Column(db.String, nullable=False)
+	year = db.Column(db.Text, nullable=False)
 
