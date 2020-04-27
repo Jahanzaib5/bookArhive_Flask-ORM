@@ -5,13 +5,13 @@ from flask import Flask, session, render_template, request, flash, redirect, url
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from flask_login import login_required, logout_user, current_user, login_user #LoginManager
+from flask_login import login_required, logout_user, current_user, login_user ,LoginManager, UserMixin
 
 
 from models import *
 
 app = Flask(__name__)
-app.secret_key = "MynameiskhanandIamnotaterrorist "
+app.secret_key = "MynameiskhanandIamnotaterrorist"
 
 #login_manager = LoginManager()
 
@@ -38,6 +38,14 @@ engine = create_engine(os.getenv("DATABASE_URL"))
 db.init_app(app)
 
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+#to return the user object with just the user_id for the purpose of logging in
+@login_manager.user_loader
+def load_user(user_id):
+	return Users.query.get(int(user_id))
 
 
 @app.route("/")
@@ -107,12 +115,13 @@ def sign_in():
 
 		if (username=='' or password=='') == False:
 			user = Users.query.filter_by(username=username).first() #cehck if user exist in the database
-			passw = user.check_password(password) #method we build to check the password and return bool
-			if (user and passw):
-				session['user'] = user
-				#next_page = request.args.get('next')
-				return redirect(url_for('dashboard'))
-			return render_template('error.html', message="Invalid login details")
+			if (user):
+				passw = user.check_password(password)#method we build to check the password and return bool
+				if (passw):
+					login_user(user)
+					session['user'] = user
+					return render_template('dashboard.html', message=user.__repr__())
+					#return redirect(url_for('dashboard'))
 		return render_template('error.html', message="Invalid login details")
 	else:
 		if 'user' in session:
@@ -122,18 +131,20 @@ def sign_in():
 
 
 @app.route('/dashboard')
+@login_required
 def dashboard():
 	if 'user' in session:
 		user = session['user']
-		return render_template("dashboard.html", message=user)
+		return render_template("dashboard.html", message=user.__repr__())
 	else:
 		return render_template('error.html', message="Login failed")
 
 
 
 @app.route('/logout')
+@login_required
 def logout():
-	session.clear()
+	logout_user()
 	session.pop('user ', None)
 	return redirect(url_for('index'))
 

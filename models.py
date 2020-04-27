@@ -26,7 +26,7 @@ class Users(UserMixin, db.Model):
 
 
   def __repr__(self):
-  	return '<User {}>'.format(self.username)
+  	return 'Welcome {}!'.format(self.username)
 
 
 
