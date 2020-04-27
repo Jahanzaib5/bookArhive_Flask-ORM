@@ -1,7 +1,7 @@
 import os
 import csv
 
-from flask import Flask, session, render_template, request, flash, redirect, url_for, g
+from flask import Flask, session, render_template, request, flash, redirect, url_for, g, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine, or_
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -157,8 +157,21 @@ def book_search():
 
 #creating api for the books
 @login_required
-@app.route('/api/books/<int:book.id>')
-def
+@app.route('/books_api/api/<int:book_isbn>')
+def books_api(book_isbn):
+	book_isbn=str(book_isbn)
+	#make sure book exist
+	exist = BookArchive.query.filter_by(isbn=book_isbn).first()
+	if exist == None:
+		return jsonify({'error': "Invalid Book Isbn"}), 422
+
+	return jsonify({
+		"Book_Isbn": exist.isbn,
+		"Title": exist.title,
+		"Author": exist.author,
+		"Publishing year": exist.year
+		})
+
 
 @app.route('/logout')
 @login_required
