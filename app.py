@@ -144,24 +144,26 @@ def dashboard():
 @app.route('/book_search', methods=['POST'])
 @login_required
 def book_search():
-	book_isbn=request.form.get('book_isbn')
-	book_author=request.form.get('book_author')
-	book_title=request.form.get('book_title')
+	book_isbn=str(request.form.get('book_isbn'))
+	book_author=str(request.form.get('book_author'))
+	book_title=str(request.form.get('book_title'))
 
 	#search through the database and return it in a list
-	results = BookArchive.query.filter(or_(BookArchive.isbn==book_isbn, BookArchive.title==book_title, BookArchive.author==book_author)).all()
+	results = BookArchive.query.filter(or_(BookArchive.isbn.like(book_isbn), BookArchive.title.like(book_title), BookArchive.author.like(book_author))).all()
+
+	#results = BookArchive.query.filter(or_(BookArchive.isbn==book_isbn, BookArchive.title==book_title, BookArchive.author==book_author)).all()
 	if results == None:
 		return render_template('book_search.html')
 	return render_template('book_search.html', results=results)
 
 
 #creating api for the books
-@login_required
 @app.route('/books_api/api/<int:book_isbn>')
+@login_required
 def books_api(book_isbn):
 	book_isbn=str(book_isbn)
 	#make sure book exist
-	exist = BookArchive.query.filter_by(isbn=book_isbn).first()
+	exist = BookArchive.query.filter_by(id=book_isbn).first()
 	if exist == None:
 		return jsonify({'error': "Invalid Book Isbn"}), 422
 

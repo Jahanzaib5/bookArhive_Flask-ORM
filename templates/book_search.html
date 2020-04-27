@@ -33,7 +33,7 @@
 		    <td>{{i.isbn}}</td>
 		    <td>{{i.title}}</td>
 		    <td>{{i.author}}</td>
-		    <td><a href="{{url_for('books_api', book_isbn=i.isbn)}}">Details</a></td>
+		    <td><a href="{{url_for('books_api', book_isbn=i.id)}}">Details</a></td>
 		  </tr>
 	  {% endfor %}
 	</table>
