@@ -26,14 +26,16 @@
 	    <th>Book ISBN</th>
 	    <th>Book Title</th>
 	    <th>Book Author</th>
-	    <th>Click to have more details</th>
+	    <th>Details on our Archive</th>
+	    <th>Details on good read Database</th>
 	  </tr>
 	  {% for i in results %}
 		  <tr>
 		    <td>{{i.isbn}}</td>
 		    <td>{{i.title}}</td>
 		    <td>{{i.author}}</td>
-		    <td><a href="{{url_for('books_api', book_id=i.id)}}">Details</a></td>
+		    <td><a href="{{url_for('books_api', book_id=i.id)}}">Our Archive</a></td>
+		    <td><a href="{{url_for('good_reads', book_isbn=i.isbn)}}">Good Reads</a></td>
 		  </tr>
 	  {% endfor %}
 	</table>

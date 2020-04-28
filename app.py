@@ -1,6 +1,6 @@
 import os
 import csv
-
+import requests
 from flask import Flask, session, render_template, request, flash, redirect, url_for, g, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine, or_
@@ -149,14 +149,31 @@ def book_search():
 	book_title=str(request.form.get('book_title'))
 
 	#search through the database and return it in a list
-	#results = BookArchive.query.filter(or_(BookArchive.isbn==book_isbn, BookArchive.title==book_title, BookArchive.author==book_author)).all()
+	results = BookArchive.query.filter(or_(BookArchive.isbn==book_isbn, BookArchive.title==book_title, BookArchive.author==book_author)).all()
 
 	#now check for each possibility
+	#dummy='#######'
 	#author_r = "%{}%".format(book_author)
-	#isbn_r = "%{}%".format(book_isbn)
-	#title_r = "%{}%".format(book_title)
 
-	#results = BookArchive.query.filter(or_(BookArchive.isbn.like(isbn_r), BookArchive.title.like(title_r), BookArchive.author.like(title_r))).all()
+	#if book_author != " ":
+	#	author_r = "%{}%".format(book_author)
+	#else:
+	#	author_r = "%{}%".format(dummy)
+
+
+	#if book_isbn != " ":
+	#	isbn_r = "%{}%".format(book_isbn)
+	#else:
+	#	isbn_r = "%{}%".format(dummy)
+
+
+	#if book_title != " ":
+	#	title_r = "%{}%".format(book_title)
+	#else:
+	#	title_r = "%{}%".format(dummy)
+
+	#results = BookArchive.query.filter(BookArchive.title.like(author_r)).all()
+	#results = BookArchive.query.filter(or_(BookArchive.isbn.like(isbn_r), BookArchive.title.like(title_r), BookArchive.author.like(author_r))).all()
 	if results == None:
 		return render_template('book_search.html')
 	return render_template('book_search.html', results=results)
@@ -164,7 +181,7 @@ def book_search():
 
 #creating api for the books
 @app.route('/books_api/api/<int:book_id>')
-#@login_required
+@login_required
 def books_api(book_id):
 	book_isbn=str(book_id)
 	#make sure book exist
@@ -178,6 +195,16 @@ def books_api(book_id):
 		"Author": exist.author,
 		"Publishing year": exist.year
 		})
+
+#get the data form good reads website thorugh the api
+@app.route('/books_api/api/good_reads/<int:book_isbn>')
+def good_reads(book_isbn):
+	res = requests.get("https://www.goodreads.com/book/review_counts.json", params={"key": "Y721MnsjhI8ppyUO0cGitA", "isbns": book_isbn})
+	if res.status_code != 200:
+		raise Exception("Error: Api request unseccessful")
+	data=res.json()
+	return data
+
 
 
 @app.route('/logout')
