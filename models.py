@@ -47,3 +47,6 @@ class BookArchive(db.Model):
 	author = db.Column(db.String, nullable=False)
 	year = db.Column(db.Text, nullable=False)
 
+
+
+

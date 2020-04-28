@@ -149,23 +149,28 @@ def book_search():
 	book_title=str(request.form.get('book_title'))
 
 	#search through the database and return it in a list
-	results = BookArchive.query.filter(or_(BookArchive.isbn.like(book_isbn), BookArchive.title.like(book_title), BookArchive.author.like(book_author))).all()
-
 	#results = BookArchive.query.filter(or_(BookArchive.isbn==book_isbn, BookArchive.title==book_title, BookArchive.author==book_author)).all()
+
+	#now check for each possibility
+	#author_r = "%{}%".format(book_author)
+	#isbn_r = "%{}%".format(book_isbn)
+	#title_r = "%{}%".format(book_title)
+
+	#results = BookArchive.query.filter(or_(BookArchive.isbn.like(isbn_r), BookArchive.title.like(title_r), BookArchive.author.like(title_r))).all()
 	if results == None:
 		return render_template('book_search.html')
 	return render_template('book_search.html', results=results)
 
 
 #creating api for the books
-@app.route('/books_api/api/<int:book_isbn>')
-@login_required
-def books_api(book_isbn):
-	book_isbn=str(book_isbn)
+@app.route('/books_api/api/<int:book_id>')
+#@login_required
+def books_api(book_id):
+	book_isbn=str(book_id)
 	#make sure book exist
-	exist = BookArchive.query.filter_by(id=book_isbn).first()
+	exist = BookArchive.query.filter_by(id=book_id).first()
 	if exist == None:
-		return jsonify({'error': "Invalid Book Isbn"}), 422
+		return jsonify({'error': "Invalid Book Id"}), 422
 
 	return jsonify({
 		"Book_Isbn": exist.isbn,
@@ -201,6 +206,23 @@ def main_2():
   	print(count)
   	db.session.commit()
 
+#just to check something. NOthing to do witht the current interface  and app
+def bring_info():
+  #bring = BookArchive.query.get(3820)
+  bring = BookArchive.query.filter_by(id=3820).all()
+  bring_2 = BookArchive.query.filter_by(id=3821).all()
+  book_author="Kate"
+  book_auth="%{}%".format(book_author)
+  bring_3= BookArchive.query.filter(BookArchive.author.like(book_auth)).all()
+  print(bring_3)
+  #print(bring_2)
+  #for i in bring:
+  #	bring_2.append(i)
+  #print(bring_2)
+
+
+
+
 
 
 
@@ -208,4 +230,5 @@ if __name__ == "__main__":
   # Allows for command line interaction with Flask application
   with app.app_context():
     #main()
-    main_2()
+    #main_2()
+    bring_info()
